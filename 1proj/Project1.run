@@ -18,9 +18,9 @@ option cplex_options 'timing 1  mipdisplay 2  absmipgap 1e-3  mipgap 1e-9  integ
 # MODEL FILE and DATA FILE  (change "name.mod" and "name.dat")
 #------------------------------------------------------------------------------
 
-model projects/1proj/Project1_A2.mod;														# Choose model file
-data  "projects/1proj/Project1_Coord.dat";					# Choose data file
-data  "projects/1proj/Project1_A2.dat";					# Choose data file
+model TAOP18/1proj/Project1_A2.mod;														# Choose model file
+data  "TAOP18/1proj/Project1_Coord.dat";					# Choose data file
+data  "TAOP18/1proj/Project1_A2.dat";					# Choose data file
 
 
 #------------------------------------------------------------------------------
@@ -42,13 +42,13 @@ display _objname, _obj; 			# Display objective value
 # PRINTS RESULT TO FILE   (change "name.res")
 #------------------------------------------------------------------------------
 
-display _objname, _obj	> projects/1proj/totcost.res;		# Objective value
+display _objname, _obj	> TAOP18/1proj/totcost.res;		# Objective value
 
-display sum{d in D_CENTERS, k in CUSTOMAREAS, p in PRODUCTS} DelProd_DC[d,p,k], "TOT PROD FR ALLA DC" > projects/1proj/totcost.res;
+display sum{d in D_CENTERS, k in CUSTOMAREAS, p in PRODUCTS} DelProd_DC[d,p,k], "TOT PROD FR ALLA DC" > TAOP18/1proj/totcost.res;
 
-display sum{d in D_CENTERS, k in CUSTOMAREAS} Tcost_D2C*distDC[d,k], "TOT. DIST REST" > projects/1proj/totcost.res;
+display sum{d in D_CENTERS, k in CUSTOMAREAS} Tcost_D2C*distDC[d,k], "TOT. DIST REST" > TAOP18/1proj/totcost.res;
 
-display _varname, _var	> projects/1proj/resVars.res;		# Display all variables
+display _varname, _var	> TAOP18/1proj/resVars.res;		# Display all variables
 
 
 

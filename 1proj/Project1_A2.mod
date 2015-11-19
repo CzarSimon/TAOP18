@@ -76,10 +76,9 @@ sqrt( (CoordDCenter_x[i]-CoordCustomer_x[j])^2 + (CoordDCenter_y[i]-CoordCustome
 #-----------------------------------------------------------------------------------------------
 
 # var x
-var CiP{PRODUCTS, COMPONENTS} binary; 
-var SubComp{FACTORIES, COMPONENTS} >= 0;
-var DelProd_DC{D_CENTERS, PRODUCTS, CUSTOMAREAS} >= 0;
-var DelComp{FACTORIES, D_CENTERS, COMPONENTS} >=0;
+var SubComp{FACTORIES, COMPONENTS} integer >= 0;
+var DelProd_DC{D_CENTERS, PRODUCTS, CUSTOMAREAS} integer >= 0;
+var DelComp{FACTORIES, D_CENTERS, COMPONENTS} integer >=0;
 var open_DC{D_CENTERS} binary;
 var ExcessDemand{CUSTOMAREAS, PRODUCTS, EXCESSLEVEL} >= 0; #Excess demand at customer areas
 
@@ -116,9 +115,9 @@ FulfillDemand{k in CUSTOMAREAS, p in PRODUCTS}:
 ExcessConstraint{k in CUSTOMAREAS, e in EXCESSLEVEL, p in PRODUCTS}: 
 			ExcessDemand[k,p,e] <= ExcessLimit[e]*Demand[k,p];
 
-DCNodeBalance{d in D_CENTERS, c in COMPONENTS, p in PRODUCTS}: #<--------------------------------------------------MÅSTE ÄNDRAS
+DCNodeBalance{d in D_CENTERS, c in COMPONENTS}: #<--------------------------------------------------MÅSTE ÄNDRAS
 			#(sum{f in FACTORIES} DelComp[f,d,p] - sum{k in CUSTOMAREAS} DelProd_DC[d,p,k]) = 0;
-			sum{k in CUSTOMAREAS} DelProd_DC[d,p,k] - sum{f in FACTORIES} DelComp[f,d,c]*CiP[p,c] = 0;
+			sum{k in CUSTOMAREAS, p in PROD_USING_COMPONENTS[c]} DelProd_DC[d,p,k] - sum{f in FACTORIES} DelComp[f,d,c] = 0;
 
 DCTimeConstraint{d in D_CENTERS}: 
 			sum{p in PRODUCTS, k in CUSTOMAREAS} DelProd_DC[d,p,k]*AssemblyTime[d,p] <= DC_Capacity[d];
@@ -126,22 +125,5 @@ DCTimeConstraint{d in D_CENTERS}:
 OnlyDeliverFromOpenDC{d in D_CENTERS}:
 			sum{p in PRODUCTS, k in CUSTOMAREAS} DelProd_DC[d,p,k] <= open_DC[d]*1000000;
 
-CompInProd {c in COMPONENTS, p in PRODUCTS, j in PROD_USING_COMPONENTS[c]}:
-			#p*CiP[p,c] = CiP[p,c]*j[c];
-			#CiP[p,c] = CiP[p,c]*j;
-			#if p=j then CiP[p,c]>0 else CiP[p,c]<1;
-			#CiP[p,c] = (if p=j then 1 else 0)
 
-		#	for{j in PROD_USING_COMPONENTS[c]}{
-		#		solve CiP[p,c] = (if p=j then 1 else 0);
-		#	}
-
-			for{j in PROD_USING_COMPONENTS[c]}{
-
-				if p=j then {
-					CiP[p,c] = 1;
-				}else{
-					CiP[p,c] = 0;
-				}
-			}
 
