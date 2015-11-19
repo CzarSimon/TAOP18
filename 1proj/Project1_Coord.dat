@@ -1,0 +1,43 @@
+#-------------------------------------------
+# Datafile for Project 1  (coordinates)
+#-------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# Coordinates for Factories, DCs and Customers
+#-------------------------------------------------------------------------------
+
+param :     CoordFactory_x CoordFactory_y :=  
+HALMSTAD          100         520
+TRANAS            760         810
+STOCKHOLM        1170        1380
+FALUN             610        1900;
+
+
+param :     CoordDCenter_x CoordDCenter_y :=  
+KRISTIANSTAD      270         360
+VAXJO             620         630
+JONKOPING         490         830
+LINKOPING         620        1120
+ALINGSAS          210         950
+NYKOPING          910        1220
+UPPSALA          1170        1490
+KARLSTAD          270        1410  
+FAGERSTA          870        1610  
+MORA              680        2050
+HUDIKSVALL       1190        2180;
+
+
+param :  CoordCustomer_x CoordCustomer_y :=
+SKANE             150         380 
+SMALAND           660         680
+VASTERGOTLAND     240         750
+GOTEBORG           80         970
+OSTERGOTLAND      700        1150
+MALARDALEN        720        1490
+VARMLAND          270        1520
+DALARNA           660        1980
+SORMLAND         1020        1300
+UPPLAND          1200        1540
+NORRLAND         1160        2470;
+

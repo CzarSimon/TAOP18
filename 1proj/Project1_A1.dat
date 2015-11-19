@@ -1,0 +1,166 @@
+#-------------------------------------------
+# Datafile for Project 1 -- Assignment 1
+#-------------------------------------------
+
+#-------------------------------------------------------------------------------
+# Remember that in Assignment 1, since only one component is needed in order to 
+# manufacture one product, the model can be formulated by using only products!
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# Transportation Costs:  F = Factory, D = Distribution Center, C = Customer
+#-------------------------------------------------------------------------------
+
+param Tcost_F2C	:= 0.25;	# Should only be used in Assignment 1a and 1c
+
+param Tcost_F2D	:= 0.01;	# From Factories to Distribution Centers
+param Tcost_D2C	:= 0.15;	# From distribution Centers to Customers
+
+
+#-------------------------------------------------------------------------------
+# Excess sales have 10%, 30% and 50% reduction in revenue, in their intervals
+#-------------------------------------------------------------------------------
+param : RevScale    ExcessLimit := 
+1	  0.90			0.2
+2	  0.70			0.3
+3	  0.50          0.5 ;
+
+
+#-------------------------------------------------------------------------------
+# Sets of Factories, Customer Areas, Distribution Centers, and Products
+#-------------------------------------------------------------------------------
+
+set FACTORIES 	:= HALMSTAD TRANAS STOCKHOLM FALUN;
+set CUSTOMAREAS	:= SKANE SMALAND VASTERGOTLAND GOTEBORG OSTERGOTLAND MALARDALEN 
+                   SORMLAND UPPLAND DALARNA NORRLAND VARMLAND;
+set D_CENTERS 	:= KRISTIANSTAD VAXJO JONKOPING LINKOPING ALINGSAS NYKOPING 
+                   UPPSALA KARLSTAD FAGERSTA MORA HUDIKSVALL;
+
+set PRODUCTS 	:= PROD1 PROD2 PROD3 PROD4;
+
+
+#-------------------------------------------------------------------------------
+# Assembly cost at each Factory
+#-------------------------------------------------------------------------------
+
+param AssemblyCost_F :   PROD1  PROD2  PROD3  PROD4 := 
+HALMSTAD                   5      5      6      6
+TRANAS                     8      4      7      7
+STOCKHOLM                  3      4      6      3
+FALUN                      7      5      4      7 ;
+
+
+
+#-------------------------------------------------------------------------------
+# Assembly cost at the Distribution Centers
+#-------------------------------------------------------------------------------
+
+param AssemblyCost_DC :  PROD1  PROD2  PROD3  PROD4 := 
+KRISTIANSTAD               2      3      4      3
+VAXJO                      4      5      3      3
+JONKOPING                  5      3      4      4
+LINKOPING                  3      4      4      3
+ALINGSAS                   3      4      4      3
+NYKOPING                   5      6      3      5
+UPPSALA                    4      5      5      3
+KARLSTAD                   6      4      6      4
+FAGERSTA                   4      5      6      3
+MORA                       5      5      4      4
+HUDIKSVALL                 5      7      5      5 ;
+
+
+#-------------------------------------------------------------------------------
+# Subcontractor component (product) cost for each Factory
+#-------------------------------------------------------------------------------
+
+param CompCost :  PROD1  PROD2  PROD3  PROD4 :=
+HALMSTAD            1      2      2      2
+TRANAS              3      3      2      3
+STOCKHOLM           1      1      3      2
+FALUN               3      3      2      1 ;
+
+
+#-------------------------------------------------------------------------------
+# Revenue for Products at each Customer Area
+#-------------------------------------------------------------------------------
+
+param Revenue :   PROD1  PROD2  PROD3  PROD4 :=
+SKANE               70    85     80     80 
+SMALAND             80    90     95     80
+VASTERGOTLAND       70    85     80     75
+GOTEBORG            85    85     75     85
+OSTERGOTLAND        75    90     80     90
+MALARDALEN          80    85     85     75
+VARMLAND            80    65     65     90
+DALARNA             70    60     70     85
+SORMLAND            65    60     75     90
+UPPLAND             85    70     85     75
+NORRLAND            70    70     75     75 ;
+
+
+#-------------------------------------------------------------------------------
+# The supply of each component (product) at each Factory
+#-------------------------------------------------------------------------------
+
+param Supply :    PROD1  PROD2  PROD3  PROD4 :=
+HALMSTAD           500    200    260    390
+TRANAS             420    300    650    415
+STOCKHOLM          300    325    400    300
+FALUN              380    290    390    420 ;
+
+
+#-------------------------------------------------------------------------------
+# The demand of each product at each Customer Area
+#-------------------------------------------------------------------------------
+
+param Demand :    PROD1  PROD2  PROD3  PROD4 :=
+SKANE              100    180    150    220 
+SMALAND            100    160     90     40
+VASTERGOTLAND      300     60    180     60
+GOTEBORG            90     40    130     50
+OSTERGOTLAND       130    110     90    180
+MALARDALEN          80     40     70    100
+VARMLAND           120     60     40     90
+DALARNA            100    140    130    100
+SORMLAND           120     50     70     90
+UPPLAND            110     70     60    120
+NORRLAND           130     20     40    100 ;
+
+
+#-------------------------------------------------------------------------------
+# The Assembly Time for each product at Distribution Center
+#-------------------------------------------------------------------------------
+
+param AssemblyTime :   PROD1  PROD2  PROD3  PROD4 := 
+KRISTIANSTAD             1      1      1      1
+VAXJO                    1      1      1      1
+JONKOPING                1      1      1      1
+LINKOPING                1      1      1      1
+ALINGSAS                 1      1      1      1
+NYKOPING                 1      1      1      1
+UPPSALA                  1      1      1      1
+KARLSTAD                 1      1      1      1
+FAGERSTA                 1      1      1      1
+MORA                     1      1      1      1
+HUDIKSVALL               1      1      1      1 ;
+
+
+#-------------------------------------------------------------------------------
+# The Setup Cost and Capacity for each Distribution Center
+#-------------------------------------------------------------------------------
+
+param :       	  DC_Setup  DC_Capacity :=
+KRISTIANSTAD       14000        900
+VAXJO              22000       1300
+JONKOPING          14000       1500
+LINKOPING          14000       1200
+ALINGSAS           17000        600
+NYKOPING           23000        600
+UPPSALA            18000       1000
+KARLSTAD           14000       1200
+FAGERSTA           20000        900
+MORA               11000       1200
+HUDIKSVALL         21000        900;
+
+

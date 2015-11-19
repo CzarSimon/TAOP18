@@ -1,0 +1,68 @@
+#------------------------------------------------------------------------------
+# Command file: Project 1
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# OPTIONS	(remember to change "cplexamp" to "./cplex" if not at MAI)
+#------------------------------------------------------------------------------
+
+reset;                  			# Resets everything
+option solver './cplex';    			# Choice of solver
+option presolve 1;				# Turns off presolve
+option display_eps 1e-6;			# Displays tiny numbers as 0.
+
+option cplex_options 'timing 1  mipdisplay 2  absmipgap 1e-3  mipgap 1e-9  integrality 1e-9';
+
+
+#------------------------------------------------------------------------------
+# MODEL FILE and DATA FILE  (change "name.mod" and "name.dat")
+#------------------------------------------------------------------------------
+
+model projects/1proj/Project1_A2.mod;														# Choose model file
+data  "projects/1proj/Project1_Coord.dat";					# Choose data file
+data  "projects/1proj/Project1_A2.dat";					# Choose data file
+
+
+#------------------------------------------------------------------------------
+# SOLVES THE PROBLEM, PRINTS RESULT IN TERMINAL
+#------------------------------------------------------------------------------
+
+solve;						# Solve the problem
+
+#display _varname, _var;			# Display all variables
+
+display {j in 1.._nvars: _var[j] > 0}		# Display only non-zero variables
+(_varname[j], _var[j]);
+
+display _objname, _obj; 			# Display objective value
+
+
+
+#------------------------------------------------------------------------------
+# PRINTS RESULT TO FILE   (change "name.res")
+#------------------------------------------------------------------------------
+
+display _objname, _obj	> projects/1proj/totcost.res;		# Objective value
+
+display sum{d in D_CENTERS, k in CUSTOMAREAS, p in PRODUCTS} DelProd_DC[d,p,k], "TOT PROD FR ALLA DC" > projects/1proj/totcost.res;
+
+display sum{d in D_CENTERS, k in CUSTOMAREAS} Tcost_D2C*distDC[d,k], "TOT. DIST REST" > projects/1proj/totcost.res;
+
+display _varname, _var	> projects/1proj/resVars.res;		# Display all variables
+
+
+
+#------------------------------------------------------------------------------
+# CHECK THE CPLEX SOLVER EXIT CODE
+#------------------------------------------------------------------------------
+
+printf "Solver exit code: %3i\n", solve_result_num;
+printf "#--------------------------#\n";
+if solve_result_num >=   0  and  solve_result_num <=   4  then  printf "#   EVERYTHING OK!!        #\n";
+if solve_result_num >= 200  and  solve_result_num <= 220  then  printf "#   INFEASIBLE!!           #\n";
+if solve_result_num >= 300  and  solve_result_num <= 320  then  printf "#   UNBOUNDED PROBLEM!!    #\n";
+if solve_result_num >= 540  and  solve_result_num <= 560  then  printf "#   NON-LINEAR PROBLEM!!   #\n";
+printf "#--------------------------#\n";
+if solve_result_num  >   4  then  exit;
+
+
