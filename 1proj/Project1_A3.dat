@@ -1,0 +1,327 @@
+#-------------------------------------------
+# Datafile for Project 1 -- Assignment 3
+#-------------------------------------------
+
+#-------------------------------------------------------------------------------
+# In Assignment 3, we now consider a planning horizon over multiple time steps
+#-------------------------------------------------------------------------------
+param T		:= 3;		# Number of time time steps
+
+
+#-------------------------------------------------------------------------------
+# Transportation Costs:  F = Factory, D = Distribution Center, C = Customer
+#-------------------------------------------------------------------------------
+
+param Tcost_F2D	:= 0.01;	# From Factories to Distribution Centers
+param Tcost_D2C	:= 0.15;	# From distribution Centers to Customers
+
+
+
+
+#-------------------------------------------------------------------------------
+# Excess sales have 10%, 30% and 50% reduction in revenue, in their intervals
+#-------------------------------------------------------------------------------
+param : RevScale    ExcessLimit := 
+1	  0.90		0.2
+2	  0.70		0.5
+3	  0.50          1.0 ;
+
+
+#-------------------------------------------------------------------------------
+# Inventory Holding Costs:  for Components and Products
+#-------------------------------------------------------------------------------
+
+param HoldCost_Comp := 0.25;
+param HoldCost_Prod := 1;
+
+
+#-------------------------------------------------------------------------------
+# Sets of Factories, Customer Areas, Distribution Centers, Components and Products
+#-------------------------------------------------------------------------------
+
+set FACTORIES 	:= HALMSTAD TRANAS STOCKHOLM FALUN;
+set CUSTOMAREAS	:= SKANE SMALAND VASTERGOTLAND GOTEBORG OSTERGOTLAND MALARDALEN 
+                   SORMLAND UPPLAND DALARNA NORRLAND VARMLAND;
+set D_CENTERS 	:= KRISTIANSTAD VAXJO JONKOPING LINKOPING ALINGSAS NYKOPING 
+                   UPPSALA KARLSTAD FAGERSTA MORA HUDIKSVALL;
+set USED_DC 	:= KRISTIANSTAD VAXJO LINKOPING ALINGSAS UPPSALA KARLSTAD MORA;
+set COMPONENTS 	:= COMP1 COMP2 COMP3 COMP4 COMP5 COMP6 COMP7 COMP8;
+set PRODUCTS 	:= PROD1 PROD2 PROD3 PROD4;
+
+
+#-------------------------------------------------------------------------------
+# Sets for each Component: specifies whith products that need the component
+#-------------------------------------------------------------------------------
+
+set PROD_USING_COMPONENTS[COMP1] := PROD4; 
+set PROD_USING_COMPONENTS[COMP2] := PROD2 PROD3; 
+set PROD_USING_COMPONENTS[COMP3] := PROD1 PROD4; 
+set PROD_USING_COMPONENTS[COMP4] := PROD3 PROD4; 
+set PROD_USING_COMPONENTS[COMP5] := PROD1 PROD2; 
+set PROD_USING_COMPONENTS[COMP6] := PROD2 PROD3; 
+set PROD_USING_COMPONENTS[COMP7] := PROD1 PROD2; 
+set PROD_USING_COMPONENTS[COMP8] := PROD2 PROD3; 
+
+
+#-------------------------------------------------------------------------------
+# Assembly Cost at the Distribution Centers, for each time step
+#-------------------------------------------------------------------------------
+
+param AssemblyCost :=
+[*,*,1] :        PROD1  PROD2  PROD3  PROD4 := 
+KRISTIANSTAD       2      3      4      3
+VAXJO              4      5      3      3
+JONKOPING          5      3      4      4
+LINKOPING          3      4      4      3
+ALINGSAS           3      4      4      3
+NYKOPING           5      6      3      5
+UPPSALA            4      5      5      3
+KARLSTAD           6      4      6      4
+FAGERSTA           4      5      6      3
+MORA               5      5      4      4
+HUDIKSVALL         5      7      5      5 
+
+[*,*,2] :        PROD1  PROD2  PROD3  PROD4 := 
+KRISTIANSTAD       3      4      4      4 
+VAXJO              2      5      2      4
+JONKOPING          5      3      5      5
+LINKOPING          4      5      7      3
+ALINGSAS           2      4      5      4 
+NYKOPING           2      6      3      6
+UPPSALA            4      2      5      4
+KARLSTAD           3      5      4      4
+FAGERSTA           7      4      6      5
+MORA               6      3      5      5
+HUDIKSVALL         5      6      3      3
+
+[*,*,3]  :       PROD1  PROD2  PROD3  PROD4 := 
+KRISTIANSTAD       2      3      4      3
+VAXJO              4      5      3      3
+JONKOPING          5      3      4      4
+LINKOPING          3      4      4      3
+ALINGSAS           3      4      4      3
+NYKOPING           5      6      3      5
+UPPSALA            4      5      5      3
+KARLSTAD           6      4      6      4
+FAGERSTA           4      5      6      3
+MORA               5      5      4      4
+HUDIKSVALL         5      7      5      5 
+ ;
+
+
+
+#-------------------------------------------------------------------------------
+# Subcontractor component cost for each Factory, for each time step
+#-------------------------------------------------------------------------------
+
+param CompCost :=
+[*,*,1] :    COMP1  COMP2  COMP3  COMP4  COMP5  COMP6  COMP7  COMP8 :=
+HALMSTAD       4      2      6      3      4      2      6      3
+TRANAS         3      4      5      5      6      5      4      5
+STOCKHOLM      6      5      4      5      4      3      2      3
+FALUN          4      3      2      3      3      4      5      5
+
+[*,*,2] :    COMP1  COMP2  COMP3  COMP4  COMP5  COMP6  COMP7  COMP8 :=
+HALMSTAD       3      1      5      2      3      1      5      2
+TRANAS         2      3      4      4      5      4      3      4
+STOCKHOLM      5      4      3      4      3      2      1      2
+FALUN          3      2      1      2      2      3      4      4
+
+[*,*,3] :    COMP1  COMP2  COMP3  COMP4  COMP5  COMP6  COMP7  COMP8 :=
+HALMSTAD       3      2      5      3      4      2      6      3
+TRANAS         3      5      6      5      5      5      4      4
+STOCKHOLM      6      4      4      5      4      4      3      3
+FALUN          4      3      3      3      3      4      5      5 ;
+
+
+#-------------------------------------------------------------------------------
+# Revenue of Products at each Customer Area, for each time step
+#-------------------------------------------------------------------------------
+
+param Revenue :=
+[*,*,1]  :        PROD1 PROD2 PROD3 PROD4 :=
+SKANE               50    75    75    65
+SMALAND             60    65    70    70
+VASTERGOTLAND       70    70    75    65
+GOTEBORG            70    65    60    65
+OSTERGOTLAND        60    70    80    80
+MALARDALEN          60    65    70    70 
+VARMLAND            60    70    75    70
+DALARNA             65    60    65    65
+SORMLAND            60    70    75    80
+UPPLAND             75    65    70    60 
+NORRLAND            80    70    65    70
+
+[*,*,2] :         PROD1 PROD2 PROD3 PROD4 :=
+SKANE               60    65    70    70 
+SMALAND             60    70    70    70
+VASTERGOTLAND       50    75    75    65
+GOTEBORG            70    65    60    65
+OSTERGOTLAND        60    70    80    80
+MALARDALEN          75    65    65    60
+VARMLAND            60    70    75    80
+DALARNA             70    70    75    65
+SORMLAND            60    70    80    80
+UPPLAND             65    80    65    65
+NORRLAND            80    70    65    65
+
+[*,*,3] :          PROD1 PROD2 PROD3 PROD4 :=
+SKANE               60    65    70    70 
+SMALAND             55    65    50    65  
+VASTERGOTLAND       50    75    75    65
+GOTEBORG            60    70    65    65
+OSTERGOTLAND        60    70    70    70
+MALARDALEN          75    65    65    60
+VARMLAND            60    70    75    80
+DALARNA             60    70    80    80
+SORMLAND            60    70    75    75
+UPPLAND             70    70    75    65
+NORRLAND            65    80    65    65 ;
+
+
+#-------------------------------------------------------------------------------
+# The Supply of each component (product) at each Factory, for each time step
+#-------------------------------------------------------------------------------
+
+param Supply :=
+[*,*,1] :   	 COMP1  COMP2  COMP3  COMP4 COMP5  COMP6  COMP7  COMP8 :=
+HALMSTAD          700    510    760    690   620    700    550    420
+TRANAS            620    450    650    400   580    525    750    500
+STOCKHOLM         750    625    650    650   600    710    860    580
+FALUN             510    590    790    520   550    500    560    670 
+
+[*,*,2] :        COMP1  COMP2  COMP3  COMP4 COMP5  COMP6  COMP7  COMP8 :=
+HALMSTAD          500    610    780    690   620    650    550    425
+TRANAS            450    400    650    625   660    625    745    510
+STOCKHOLM         600    625    645    500   550    610    860    490
+FALUN             420    490    790    600   580    500    560    700
+
+[*,*,3] :        COMP1  COMP2  COMP3  COMP4 COMP5  COMP6  COMP7  COMP8 :=
+HALMSTAD          410    490    790    600   500    500    560    590
+TRANAS            500    510    760    690   420    620    550    415
+STOCKHOLM         550    625    445    500   514    510    760    490
+FALUN             520    400    550    515   666    625    745    400 ;
+
+
+#-------------------------------------------------------------------------------
+# The Demand of each product at each Customer Area, for each time step
+#-------------------------------------------------------------------------------
+
+param Demand :=
+[*,*,1] :  	  PROD1  PROD2  PROD3  PROD4 :=
+SKANE               90    180    130    140 
+SMALAND             70    160     70     50
+VASTERGOTLAND      100     80    105     50
+GOTEBORG            70     40     70     40
+OSTERGOTLAND       140    120     90    150
+MALARDALEN          50     70     60    100
+VARMLAND           100     60     80     70
+DALARNA             70    140    110     80
+SORMLAND           110     50     70     60
+UPPLAND             95     80     60    100
+NORRLAND           110     60     40     70
+
+[*,*,2] :         PROD1  PROD2  PROD3  PROD4 :=
+SKANE              130    280    140    100 
+SMALAND             80     90     60     50
+VASTERGOTLAND      200     60    180    160
+GOTEBORG           130     40     90     50
+OSTERGOTLAND       110    110     70    180
+MALARDALEN         150     80     60    130
+VARMLAND           120     70     50    110
+DALARNA            200    120    130    150
+SORMLAND           120     50     90     90
+UPPLAND            110     70     60    100
+NORRLAND           130     90     50    130
+
+[*,*,3] :         PROD1  PROD2  PROD3  PROD4 :=
+SKANE              100    140    220    180 
+SMALAND             75    120    190     70
+VASTERGOTLAND      150     60    130    120
+GOTEBORG            90     60    110     70
+OSTERGOTLAND       100    110     90    130
+MALARDALEN          80     50    120    100
+VARMLAND           140     95    120    250
+DALARNA             80    120    130     80
+SORMLAND           120     50     70     90
+UPPLAND             90    100     70    110
+NORRLAND            60     50     40     80 ;
+
+
+#-------------------------------------------------------------------------------
+# The Assembly Time for each product at Distribution Center, each time step
+#-------------------------------------------------------------------------------
+
+param AssemblyTime :=
+[*,*,1]	:  	  PROD1  PROD2  PROD3  PROD4 := 
+KRISTIANSTAD       2.0    1.5    1.7    1.6
+VAXJO              1.5    1.4    2.0    1.9
+JONKOPING          1.9    1.3    1.7    1.8
+LINKOPING          1.7    1.7    1.5    1.3
+ALINGSAS           2.0    1.8    1.4    1.9
+NYKOPING           1.8    1.3    1.5    1.8
+UPPSALA            1.6    1.5    1.8    1.7
+KARLSTAD           1.4    1.5    1.9    1.6
+FAGERSTA           1.9    1.5    1.4    1.7
+MORA               2.0    1.6    1.3    1.5
+HUDIKSVALL         2.0    1.7    2.0    1.4
+
+[*,*,2] :         PROD1  PROD2  PROD3  PROD4 := 
+KRISTIANSTAD       2.0    1.5    1.7    1.6
+VAXJO              1.5    1.4    2.0    1.9
+JONKOPING          1.9    1.3    1.7    1.8
+LINKOPING          1.7    1.7    1.5    1.3
+ALINGSAS           2.0    1.8    1.4    1.9
+NYKOPING           1.8    1.3    1.5    1.8
+UPPSALA            1.6    1.5    1.8    1.7
+KARLSTAD           1.4    1.5    1.9    1.6
+FAGERSTA           1.9    1.5    1.4    1.7
+MORA               2.0    1.6    1.3    1.5
+HUDIKSVALL         2.0    1.7    2.0    1.4
+
+[*,*,3] :         PROD1  PROD2  PROD3  PROD4 := 
+KRISTIANSTAD       2.0    1.5    1.7    1.6
+VAXJO              1.5    1.4    2.0    1.9
+JONKOPING          1.9    1.3    1.7    1.8
+LINKOPING          1.7    1.7    1.5    1.3
+ALINGSAS           2.0    1.8    1.4    1.9
+NYKOPING           1.8    1.3    1.5    1.8
+UPPSALA            1.6    1.5    1.8    1.7
+KARLSTAD           1.4    1.5    1.9    1.6
+FAGERSTA           1.9    1.5    1.4    1.7
+MORA               2.0    1.6    1.3    1.5
+HUDIKSVALL         2.0    1.7    2.0    1.4 ;
+
+
+#-------------------------------------------------------------------------------
+# The Setup Costs and Assembly Capacity Levels for each Distribution Center
+#-------------------------------------------------------------------------------
+
+param DC_CapCost :    0       1       2       3  := 
+KRISTIANSTAD        100    8000   14000   21000
+VAXJO		    100   13000   22000   32000
+JONKOPING           100    8000   14000   21000
+LINKOPING           100    8000   14000   21000
+ALINGSAS            100   10000   17000   25000
+NYKOPING            100   14000   23000   34000
+UPPSALA             100   11000   18000   29000
+KARLSTAD            100    8000   14000   21000
+FAGERSTA            100   12000   20000   29000
+MORA                100    6000   11000   20000
+HUDIKSVALL          100   12000   21000   31000  ;
+
+
+param DC_Capacity :   0       1       2       3  := 
+KRISTIANSTAD          0     900    1500    2500
+VAXJO                 0    1300    2100    3700
+JONKOPING             0    1700    2600    4600
+LINKOPING             0    1200    2000    3500
+ALINGSAS              0     600    1000    1500
+NYKOPING              0     600    1000    1500
+UPPSALA               0    1000    1700    2900
+KARLSTAD              0    1200    2000    3500
+FAGERSTA              0     900    1500    2500
+MORA                  0    1200    2000    3500
+HUDIKSVALL            0     900    1500    2500  ;
+
+
