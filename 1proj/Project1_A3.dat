@@ -22,9 +22,9 @@ param Tcost_D2C	:= 0.15;	# From distribution Centers to Customers
 # Excess sales have 10%, 30% and 50% reduction in revenue, in their intervals
 #-------------------------------------------------------------------------------
 param : RevScale    ExcessLimit := 
-1	  0.90		0.2
-2	  0.70		0.5
-3	  0.50          1.0 ;
+1	  0.90			0.2
+2	  0.70			0.3
+3	  0.50          0.5 ;
 
 
 #-------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ HUDIKSVALL         2.0    1.7    2.0    1.4 ;
 
 param DC_CapCost :    0       1       2       3  := 
 KRISTIANSTAD        100    8000   14000   21000
-VAXJO		    100   13000   22000   32000
+VAXJO		    	100   13000   22000   32000
 JONKOPING           100    8000   14000   21000
 LINKOPING           100    8000   14000   21000
 ALINGSAS            100   10000   17000   25000
@@ -323,5 +323,7 @@ KARLSTAD              0    1200    2000    3500
 FAGERSTA              0     900    1500    2500
 MORA                  0    1200    2000    3500
 HUDIKSVALL            0     900    1500    2500  ;
+
+
 
 
