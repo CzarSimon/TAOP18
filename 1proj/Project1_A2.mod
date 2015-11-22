@@ -81,6 +81,7 @@ var DelProd_DC{D_CENTERS, PRODUCTS, CUSTOMAREAS} integer >= 0;
 var DelComp{FACTORIES, D_CENTERS, COMPONENTS} integer >=0;
 var open_DC{D_CENTERS} binary;
 var ExcessDemand{CUSTOMAREAS, PRODUCTS, EXCESSLEVEL} >= 0; #Excess demand at customer areas
+var DC_storage{PRODUCTS, D_CENTERS, T} >= 0;
 
 
 
