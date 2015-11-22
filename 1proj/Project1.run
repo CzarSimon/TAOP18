@@ -25,7 +25,7 @@ data  "TAOP18/1proj/Project1_A1.dat";					# Choose data file
 #------------------------------------------------------------------------------
 # SOLVES THE PROBLEM, PRINTS RESULT IN TERMINAL
 #------------------------------------------------------------------------------
-for {i }
+
 solve;						# Solve the problem
 
 #display _varname, _var;			# Display all variables
@@ -43,9 +43,9 @@ display _objname, _obj; 			# Display objective value
 
 display _objname, _obj	> TAOP18/1proj/totcost.res;		# Objective value
 
-display sum{d in USED_DC, t in 1..T, p in PRODUCTS} DC_STORAGE_P[p,d,t]*HoldCost_Prod > TAOP18/1proj/totcost.res;
-display sum{d in USED_DC, t in 1..T, c in COMPONENTS} DC_STORAGE_C[c,d,t]*HoldCost_Comp > TAOP18/1proj/totcost.res;
-display sum{d in USED_DC, t in 0..T} DC_CapCost[d,t] > TAOP18/1proj/totcost.res;
+#display sum{d in USED_DC, t in 1..T, p in PRODUCTS} DC_STORAGE_P[p,d,t]*HoldCost_Prod > TAOP18/1proj/totcost.res;
+#display sum{d in USED_DC, t in 1..T, c in COMPONENTS} DC_STORAGE_C[c,d,t]*HoldCost_Comp > TAOP18/1proj/totcost.res;
+#display sum{d in USED_DC, t in 0..T} DC_CapCost[d,t] > TAOP18/1proj/totcost.res;
 
 display _varname, _var	> TAOP18/1proj/resVars.res;		# Display all variables
 
