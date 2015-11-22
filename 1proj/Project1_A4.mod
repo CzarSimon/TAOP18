@@ -94,7 +94,7 @@ var ExcessDemand{CUSTOMAREAS, PRODUCTS, EXCESSLEVEL} >= 0; #Excess demand at cus
 #-----------------------------------------------------------------------------------------------
 
 # maximize TotalProfit
-maximize z: sum{k in CUSTOMAREAS, p in PRODUCTS}  Revenue[k,p]*(Demand[k,p]  	# Min efterfråga
+maximize z: sum{k in CUSTOMAREAS, p in PRODUCTS}  Revenue[k,p]*(sum{d in D_CENTERS} DelProd_DC[d,p,k] - sum{e in EXCESSLEVEL} ExcessDemand[k,p,e]  	# Min efterfråga
 			+ sum{e in EXCESSLEVEL} RevScale[e]*ExcessDemand[k,p,e])				# Excess som vi skickar vart vi vill
 			- sum{f in FACTORIES, p in PRODUCTS} CompCost[f,p]*SubComp[f,p]		# Kostnad för utlego
 			- sum{k in CUSTOMAREAS, p in PRODUCTS} (
