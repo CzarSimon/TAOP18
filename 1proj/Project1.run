@@ -18,15 +18,15 @@ option cplex_options 'timing 1  mipdisplay 2  absmipgap 1e-3  mipgap 1e-9  integ
 # MODEL FILE and DATA FILE  (change "name.mod" and "name.dat")
 #------------------------------------------------------------------------------
 
-model TAOP18/1proj/Project1_A2.mod;														# Choose model file
+model "TAOP18/1proj/Project1_A4.mod";														# Choose model file
 data  "TAOP18/1proj/Project1_Coord.dat";					# Choose data file
-data  "TAOP18/1proj/Project1_A2.dat";					# Choose data file
+data  "TAOP18/1proj/Project1_A1.dat";					# Choose data file
 
 
 #------------------------------------------------------------------------------
 # SOLVES THE PROBLEM, PRINTS RESULT IN TERMINAL
 #------------------------------------------------------------------------------
-
+for {i }
 solve;						# Solve the problem
 
 #display _varname, _var;			# Display all variables
@@ -64,5 +64,3 @@ if solve_result_num >= 300  and  solve_result_num <= 320  then  printf "#   UNBO
 if solve_result_num >= 540  and  solve_result_num <= 560  then  printf "#   NON-LINEAR PROBLEM!!   #\n";
 printf "#--------------------------#\n";
 if solve_result_num  >   4  then  exit;
-
-
