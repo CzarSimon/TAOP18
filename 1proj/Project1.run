@@ -31,13 +31,14 @@ var bestResult := 0;
 var try := 0;
 var file := 0;
 
-repeat
+for {d in D_CENTERS}
 {
-  for {j in D_CENTERS}
-  {
-    fix open_DC[j] := Irand224() mod 2;
-  }
+  fix open_DC[d] := Irand224() mod 2;
+}
 
+for {d in D_CENTERS}
+{
+  fix open_DC[d] := 1;
   solve;
   fix temp := z.val;
   if temp > bestResult and solve_result_num >= 0 and solve_result_num <= 4 then
@@ -47,16 +48,9 @@ repeat
 
     display _objname, _obj	> ("TAOP18/1proj/totcost" & file & ".res");
     display _varname, _var	> ("TAOP18/1proj/resVars" & file & ".res");
-    fix try := 0;
-  } else
-  {
-    fix try := try + 1;
-    if try > 7 then
-    {
-      display "Breaking";
-      break;
-    }
-  }					# Solve the problem
+    break;
+  }
+  					# Solve the problem
 }
 #display _varname, _var;			# Display all variables
 
