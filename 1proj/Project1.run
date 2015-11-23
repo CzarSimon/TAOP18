@@ -31,6 +31,9 @@ data  "TAOP18/1proj/Project1_A1.dat";					# Choose data file
 #            a feasible solution. If not, random set again and try over.
 #------------------------------------------------------------------------------
 
+var it := 0;                # Iteration variable
+var bestResult := 0;
+var bestSet{D_CENTERS};
 
 # Repeating until we find a feasible solution
 repeat{
@@ -44,12 +47,17 @@ repeat{
   solve;
 
   # If-statement checking whether the selected DC's can provide a feasible solution
-  if solve_result_num >= 0 and solve_result_num <= 4 then 
+  if solve_result_num >= 0 and solve_result_num <= 4 and bestResult <= z.val then 
+    {
+      fix bestResult := z.val;                            # Saves the current best result
+      fix {d in D_CENTERS} bestSet[d] := open_DC[d];      # Saves the current best set of open_DC
+    }
+  if it = 100 then        #Breaks loop when have tried 100 randomized sets of open DCs
     {
       break;
     }
+  fix it := it + 1;
 }
-
 
 #-------------------------------------------------------------------------------
 
@@ -59,7 +67,7 @@ display {j in 1.._nvars: _var[j] > 0}		# Display only non-zero variables
 
 display _objname, _obj; 			# Display objective value
 
-
+display it;
 
 #------------------------------------------------------------------------------
 # PRINTS RESULT TO FILE   (change "name.res")
@@ -67,8 +75,8 @@ display _objname, _obj; 			# Display objective value
 
 display _objname, _obj	> TAOP18/1proj/totcost.res;		# Objective value
 
-display _varname, _var	> TAOP18/1proj/resVars.res;		# Display all variables
-
+#display _varname, _var	>> TAOP18/1proj/resVars.res;		# Display all variables
+display  bestSet > TAOP18/1proj/resVars.res;    # Display all variables
 
 
 #------------------------------------------------------------------------------
