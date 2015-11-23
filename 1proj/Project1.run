@@ -10,6 +10,7 @@ reset;                  			# Resets everything
 option solver './cplex';    			# Choice of solver
 option presolve 1;				# Turns off presolve
 option display_eps 1e-6;			# Displays tiny numbers as 0.
+option randseed 0;
 
 option cplex_options 'timing 1  mipdisplay 2  absmipgap 1e-3  mipgap 1e-4  integrality 1e-9';
 
@@ -25,34 +26,33 @@ data  "TAOP18/1proj/Project1_A1.dat";					# Choose data file
 #------------------------------------------------------------------------------
 # SOLVES THE PROBLEM, PRINTS RESULT IN TERMINAL
 #------------------------------------------------------------------------------
+# 
+# HEURISTIC: Randomly select which DC's to be open and see if it can provide
+#            a feasible solution. If not, random set again and try over.
+#------------------------------------------------------------------------------
 
-var temp := 0;
-var bestResult := 0;
-var try := 0;
-var file := 0;
 
-for {d in D_CENTERS}
-{
-  fix open_DC[d] := Irand224() mod 2;
-}
+# Repeating until we find a feasible solution
+repeat{
 
-for {d in D_CENTERS}
-{
-  fix open_DC[d] := 1;
+  #Randomly selecting which DC's to be open.
+  for {d in D_CENTERS}
+    {
+      fix open_DC[d] := Irand224() mod 2;
+    }
+
   solve;
-  fix temp := z.val;
-  if temp > bestResult and solve_result_num >= 0 and solve_result_num <= 4 then
-  {
-    fix bestResult := temp;
-    fix file := file + 1;
 
-    display _objname, _obj	> ("TAOP18/1proj/totcost" & file & ".res");
-    display _varname, _var	> ("TAOP18/1proj/resVars" & file & ".res");
-    break;
-  }
-  					# Solve the problem
+  # If-statement checking whether the selected DC's can provide a feasible solution
+  if solve_result_num >= 0 and solve_result_num <= 4 then 
+    {
+      break;
+    }
 }
-#display _varname, _var;			# Display all variables
+
+
+#-------------------------------------------------------------------------------
+
 
 display {j in 1.._nvars: _var[j] > 0}		# Display only non-zero variables
 (_varname[j], _var[j]);
@@ -65,13 +65,9 @@ display _objname, _obj; 			# Display objective value
 # PRINTS RESULT TO FILE   (change "name.res")
 #------------------------------------------------------------------------------
 
-#display _objname, _obj	> TAOP18/1proj/totcost.res;		# Objective value
+display _objname, _obj	> TAOP18/1proj/totcost.res;		# Objective value
 
-#display sum{d in USED_DC, t in 1..T, p in PRODUCTS} DC_STORAGE_P[p,d,t]*HoldCost_Prod > TAOP18/1proj/totcost.res;
-#display sum{d in USED_DC, t in 1..T, c in COMPONENTS} DC_STORAGE_C[c,d,t]*HoldCost_Comp > TAOP18/1proj/totcost.res;
-#display sum{d in USED_DC, t in 0..T} DC_CapCost[d,t] > TAOP18/1proj/totcost.res;
-
-#display _varname, _var	> TAOP18/1proj/resVars.res;		# Display all variables
+display _varname, _var	> TAOP18/1proj/resVars.res;		# Display all variables
 
 
 
