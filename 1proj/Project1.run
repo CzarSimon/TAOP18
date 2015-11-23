@@ -10,8 +10,9 @@ reset;                  			# Resets everything
 option solver './cplex';    			# Choice of solver
 option presolve 1;				# Turns off presolve
 option display_eps 1e-6;			# Displays tiny numbers as 0.
+option presolve_eps 1e-10;
 
-option cplex_options 'timing 1  mipdisplay 2  absmipgap 1e-3  mipgap 1e-4  integrality 1e-9';
+option cplex_options 'timing 1  mipdisplay 2  absmipgap 1e-3  mipgap 1e-2  integrality 1e-9';
 
 
 #------------------------------------------------------------------------------
@@ -20,14 +21,40 @@ option cplex_options 'timing 1  mipdisplay 2  absmipgap 1e-3  mipgap 1e-4  integ
 
 model TAOP18/1proj/Project1_A3.mod;														# Choose model file
 data  "TAOP18/1proj/Project1_Coord.dat";					# Choose data file
-data  "TAOP18/1proj/Project1_A3.dat";					# Choose data file
+data  "TAOP18/1proj/ParentCompany.dat";         # Choose data file
+#data  "TAOP18/1proj/Project1_A3.dat";         # Choose data file
 
 
 #------------------------------------------------------------------------------
 # SOLVES THE PROBLEM, PRINTS RESULT IN TERMINAL
 #------------------------------------------------------------------------------
 
-solve;						# Solve the problem
+let curTime := 1;
+let N := curTime + 2;
+let H := curTime + 4;
+
+repeat{
+  
+  solve;
+
+  fix {p in PRODUCTS, d in USED_DC, t in curTime..N} DC_STORAGE_P[p,d,t];
+  fix {c in COMPONENTS, d in USED_DC, t in curTime..N} DC_STORAGE_C[c,d,t];
+
+  if H = T then
+  { 
+    break;
+  }
+ 
+  let curTime := curTime + 2;
+  let H := curTime + 4;
+  let N := curTime + 2;
+  
+}
+
+let curTime := 1;
+let H := T;
+solve;
+
 
 #display _varname, _var;			# Display all variables
 
@@ -44,11 +71,7 @@ display _objname, _obj; 			# Display objective value
 
 display _objname, _obj	> TAOP18/1proj/totcost.res;		# Objective value
 
-display sum{d in USED_DC, t in 1..T, p in PRODUCTS} DC_STORAGE_P[p,d,t]*HoldCost_Prod > TAOP18/1proj/totcost.res;
-display sum{d in USED_DC, t in 1..T, c in COMPONENTS} DC_STORAGE_C[c,d,t]*HoldCost_Comp > TAOP18/1proj/totcost.res;
-display sum{d in USED_DC, t in 0..T} DC_CapCost[d,t] > TAOP18/1proj/totcost.res;
-
-display _varname, _var	> TAOP18/1proj/resVars.res;		# Display all variables
+display _varname, DC_STORAGE_P	> TAOP18/1proj/resVars.res;		# Display all variables
 
 
 
