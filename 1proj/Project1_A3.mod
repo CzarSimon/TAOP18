@@ -7,6 +7,9 @@
 #-------------------------------------------------------------------------------
 
 param T;						# Number of time periods
+param H;
+param N;
+param curTime;
 
 param Tcost_F2D;					# Transportation cost Factory to DC
 param Tcost_D2C;					# Transportation cost DC to Customer
@@ -93,39 +96,43 @@ var CAPACITY_UTILIZED{USED_DC, 1..T, CAPACITY} binary;
 #-----------------------------------------------------------------------------------------------
 
 # maximize TotalProfit
+<<<<<<< HEAD
 maximize z: sum{k in CUSTOMAREAS, p in PRODUCTS, t in 1..T}  Revenue[k,p,t]*(Demand[k,p,t]  	# Min efterfråga
+=======
+maximize z: sum{k in CUSTOMAREAS, p in PRODUCTS, t in curTime..min(H,T)}  Revenue[k,p,t]*(Demand[k,p,t]  	# Min efterfråga
+>>>>>>> cde7aaa8d5f2d9d242f3d5a6d80e91d0b2190fa1
 			+ sum{e in EXCESSLEVEL} RevScale[e]*ExcessDemand[k,p,e,t])				# Excess som vi skickar vart vi vill
-			- sum{f in FACTORIES, c in COMPONENTS, t in 1..T} CompCost[f,c,t]*SubComp[f,c,t]		# Kostnad för utlego
-			- sum{p in PRODUCTS, d in USED_DC, t in 1..T} AssemblyCost[d,p,t]*Produced[p,d,t]
+			- sum{f in FACTORIES, c in COMPONENTS, t in curTime..min(H,T)} CompCost[f,c,t]*SubComp[f,c,t]		# Kostnad för utlego
+			- sum{p in PRODUCTS, d in USED_DC, t in curTime..min(H,T)} AssemblyCost[d,p,t]*Produced[p,d,t]
 			-  (
-					 sum{f in FACTORIES, d in USED_DC, c in COMPONENTS,t in 1..T} Tcost_F2D*distFD[f,d]*DelComp[f,d,c,t]
-				   + sum{d in USED_DC, k in CUSTOMAREAS, p in PRODUCTS,t in 1..T} Tcost_D2C*distDC[d,k]*DelProd_DC[d,p,k,t]
+					 sum{f in FACTORIES, d in USED_DC, c in COMPONENTS,t in curTime..min(H,T)} Tcost_F2D*distFD[f,d]*DelComp[f,d,c,t]
+				   + sum{d in USED_DC, k in CUSTOMAREAS, p in PRODUCTS,t in curTime..min(H,T)} Tcost_D2C*distDC[d,k]*DelProd_DC[d,p,k,t]
 				   )
-			- sum{d in USED_DC, l in CAPACITY, t in 1..T} DC_CapCost[d,l]*CAPACITY_UTILIZED[d,t,l]
-			- sum{d in USED_DC, t in 1..T, p in PRODUCTS} DC_STORAGE_P[p,d,t]*HoldCost_Prod
-			- sum{d in USED_DC, t in 1..T, c in COMPONENTS} DC_STORAGE_C[c,d,t]*HoldCost_Comp;
+			- sum{d in USED_DC, l in CAPACITY, t in curTime..min(H,T)} DC_CapCost[d,l]*CAPACITY_UTILIZED[d,t,l]
+			- sum{d in USED_DC, t in curTime..min(H,T), p in PRODUCTS} DC_STORAGE_P[p,d,t]*HoldCost_Prod
+			- sum{d in USED_DC, t in curTime..min(H,T), c in COMPONENTS} DC_STORAGE_C[c,d,t]*HoldCost_Comp;
 #-----------------------------------------------------------------------------------------------
 # Constraints
 #-----------------------------------------------------------------------------------------------
 
 subject to
 
-conSupply{f in FACTORIES, c in COMPONENTS, t in 1..T}:
+conSupply{f in FACTORIES, c in COMPONENTS, t in curTime..min(H,T)}:
 			sum{d in USED_DC} DelComp[f,d,c,t] <= Supply[f,c,t] + SubComp[f,c,t];
 
-FulfillDemand{k in CUSTOMAREAS, p in PRODUCTS, t in 1..T}:
+FulfillDemand{k in CUSTOMAREAS, p in PRODUCTS, t in curTime..min(H,T)}:
 			sum{d in USED_DC} DelProd_DC[d,p,k,t] = Demand[k,p,t] + (sum{e in EXCESSLEVEL} ExcessDemand[k,p,e,t]);
 
-ExcessConstraint{k in CUSTOMAREAS, e in EXCESSLEVEL, p in PRODUCTS, t in 1..T}:
+ExcessConstraint{k in CUSTOMAREAS, e in EXCESSLEVEL, p in PRODUCTS, t in curTime..min(H,T)}:
 			ExcessDemand[k,p,e,t] <= ExcessLimit[e]*Demand[k,p,t];
 
-DCTimeConstraint{d in USED_DC, t in 1..T}:
+DCTimeConstraint{d in USED_DC, t in curTime..min(H,T)}:
 			sum{p in PRODUCTS} Produced[p,d,t]*AssemblyTime[d,p,t] <= sum{l in CAPACITY} DC_Capacity[d,l]*CAPACITY_UTILIZED[d,t,l];
 
-ComponentStorageConstraint{d in USED_DC, c in COMPONENTS, t in 1..T}:
+ComponentStorageConstraint{d in USED_DC, c in COMPONENTS, t in curTime..min(H,T)}:
 			DC_STORAGE_C[c,d,t-1] + sum{f in FACTORIES} DelComp[f,d,c,t] - sum{p in PROD_USING_COMPONENTS[c]} Produced[p,d,t] = DC_STORAGE_C[c,d,t];
 
-ProductStorageConstraint{d in USED_DC, p in PRODUCTS, t in 1..T}:
+ProductStorageConstraint{d in USED_DC, p in PRODUCTS, t in curTime..min(H,T)}:
 			DC_STORAGE_P[p,d,t-1] + Produced[p,d,t] - sum{k in CUSTOMAREAS} DelProd_DC[d,p,k,t] = DC_STORAGE_P[p,d,t];
 
 StorageZeroConstraintProducts{p in PRODUCTS, d in USED_DC}:
@@ -134,5 +141,5 @@ StorageZeroConstraintProducts{p in PRODUCTS, d in USED_DC}:
 StorageZeroConstraintComponents{c in COMPONENTS, d in USED_DC}:
 			DC_STORAGE_C[c,d,0] = 0;
 
-CapBinaryConstraint{d in USED_DC, t in 1..T}:
+CapBinaryConstraint{d in USED_DC, t in curTime..min(H,T)}:
 			sum{l in CAPACITY} CAPACITY_UTILIZED[d,t,l] = 1;
