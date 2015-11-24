@@ -10,7 +10,7 @@ reset;                  			# Resets everything
 option solver './cplex';    			# Choice of solver
 option presolve 1;				# Turns off presolve
 option display_eps 1e-6;			# Displays tiny numbers as 0.
-option presolve_eps 1e-10;
+#option presolve_eps 1e-10;
 
 option cplex_options 'timing 1  mipdisplay 2  absmipgap 1e-3  mipgap 1e-2  integrality 1e-9';
 
@@ -29,25 +29,27 @@ data  "TAOP18/1proj/ParentCompany.dat";         # Choose data file
 # SOLVES THE PROBLEM, PRINTS RESULT IN TERMINAL
 #------------------------------------------------------------------------------
 
+var horizon := 3;
+var near := 2;
 let curTime := 1;
-let N := curTime + 2;
-let H := curTime + 4;
+let N := curTime + near;
+let H := curTime + horizon;
 
 repeat{
   
   solve;
 
-  fix {p in PRODUCTS, d in USED_DC, t in curTime..N} DC_STORAGE_P[p,d,t];
-  fix {c in COMPONENTS, d in USED_DC, t in curTime..N} DC_STORAGE_C[c,d,t];
+  fix {p in PRODUCTS, d in USED_DC, t in curTime..min(N,T)} DC_STORAGE_P[p,d,t];
+  fix {c in COMPONENTS, d in USED_DC, t in curTime..min(N,T)} DC_STORAGE_C[c,d,t];
 
-  if H = T then
+  if H >= T then
   { 
     break;
   }
  
-  let curTime := curTime + 2;
-  let H := curTime + 4;
-  let N := curTime + 2;
+  let curTime := curTime + near;
+  let H := curTime + horizon;
+  let N := curTime + near;
   
 }
 
