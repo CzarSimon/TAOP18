@@ -30,10 +30,10 @@ param Revenue{CUSTOMAREAS, PRODUCTS};			# Selling reward
 param Supply{FACTORIES, COMPONENTS};        		# Supply at Factories
 param Demand{CUSTOMAREAS, PRODUCTS}; 			# Demand at Customer areas
 
-param AssemblyTime{D_CENTERS, PRODUCTS};		# Time needed to assemble one 
+param AssemblyTime{D_CENTERS, PRODUCTS};		# Time needed to assemble one
 							# product at DCs
 
-param DC_Setup{D_CENTERS};				# Setup costs and capacities 
+param DC_Setup{D_CENTERS};				# Setup costs and capacities
 param DC_Capacity{D_CENTERS};				# for Distribution Centers
 
 
@@ -59,13 +59,13 @@ param CoordCustomer_y{CUSTOMAREAS};
 # Euclidian distances between Factories, DCs and Customers are calculated
 #-----------------------------------------------------------------------------------------------
 
-param distFC{i in FACTORIES, j in CUSTOMAREAS} := 
+param distFC{i in FACTORIES, j in CUSTOMAREAS} :=
 sqrt( (CoordFactory_x[i]-CoordCustomer_x[j])^2 + (CoordFactory_y[i]-CoordCustomer_y[j])^2 );
 
-param distFD{i in FACTORIES, j in D_CENTERS} := 
+param distFD{i in FACTORIES, j in D_CENTERS} :=
 sqrt( (CoordFactory_x[i]-CoordDCenter_x[j])^2  + (CoordFactory_y[i]-CoordDCenter_y[j])^2 );
 
-param distDC{i in D_CENTERS, j in CUSTOMAREAS} := 
+param distDC{i in D_CENTERS, j in CUSTOMAREAS} :=
 sqrt( (CoordDCenter_x[i]-CoordCustomer_x[j])^2 + (CoordDCenter_y[i]-CoordCustomer_y[j])^2 );
 
 
@@ -75,7 +75,6 @@ sqrt( (CoordDCenter_x[i]-CoordCustomer_x[j])^2 + (CoordDCenter_y[i]-CoordCustome
 # Your variables goes here ...
 #-----------------------------------------------------------------------------------------------
 
-# var x
 var SubComp{FACTORIES, COMPONENTS} integer >= 0;
 var DelProd_DC{D_CENTERS, PRODUCTS, CUSTOMAREAS} integer >= 0;
 var DelComp{FACTORIES, D_CENTERS, COMPONENTS} integer >=0;
@@ -83,14 +82,12 @@ var open_DC{D_CENTERS} binary;
 var ExcessDemand{CUSTOMAREAS, PRODUCTS, EXCESSLEVEL} >= 0; #Excess demand at customer areas
 var DC_storage{PRODUCTS, D_CENTERS, T} >= 0;
 
-
-
 #-----------------------------------------------------------------------------------------------
 # Objective function
 #-----------------------------------------------------------------------------------------------
 
 # maximize TotalProfit
-maximize z: sum{k in CUSTOMAREAS, p in PRODUCTS}  Revenue[k,p]*(Demand[k,p]  	# Min efterfråga 
+maximize z: sum{k in CUSTOMAREAS, p in PRODUCTS}  Revenue[k,p]*(Demand[k,p]  	# Min efterfråga
 			+ sum{e in EXCESSLEVEL} RevScale[e]*ExcessDemand[k,p,e])				# Excess som vi skickar vart vi vill
 			- sum{f in FACTORIES, c in COMPONENTS} CompCost[f,c]*SubComp[f,c]		# Kostnad för utlego
 			- sum{k in CUSTOMAREAS, p in PRODUCTS, d in D_CENTERS} AssemblyCost[d,p]*DelProd_DC[d,p,k]
@@ -104,27 +101,23 @@ maximize z: sum{k in CUSTOMAREAS, p in PRODUCTS}  Revenue[k,p]*(Demand[k,p]  	# 
 # Constraints
 #-----------------------------------------------------------------------------------------------
 
-subject to 
+subject to
 
 # conSupply
-conSupply{f in FACTORIES, c in COMPONENTS}: 
+conSupply{f in FACTORIES, c in COMPONENTS}:
 			sum{d in D_CENTERS} DelComp[f,d,c] <= Supply[f,c] + SubComp[f,c];
 
 FulfillDemand{k in CUSTOMAREAS, p in PRODUCTS}:
 			(sum{d in D_CENTERS} DelProd_DC[d,p,k]) = Demand[k,p] + (sum{e in EXCESSLEVEL} ExcessDemand[k,p,e]);
 
-ExcessConstraint{k in CUSTOMAREAS, e in EXCESSLEVEL, p in PRODUCTS}: 
+ExcessConstraint{k in CUSTOMAREAS, e in EXCESSLEVEL, p in PRODUCTS}:
 			ExcessDemand[k,p,e] <= ExcessLimit[e]*Demand[k,p];
 
-DCNodeBalance{d in D_CENTERS, c in COMPONENTS}: #<--------------------------------------------------MÅSTE ÄNDRAS
-			#(sum{f in FACTORIES} DelComp[f,d,p] - sum{k in CUSTOMAREAS} DelProd_DC[d,p,k]) = 0;
+DCNodeBalance{d in D_CENTERS, c in COMPONENTS}:
 			sum{k in CUSTOMAREAS, p in PROD_USING_COMPONENTS[c]} DelProd_DC[d,p,k] - sum{f in FACTORIES} DelComp[f,d,c] = 0;
 
-DCTimeConstraint{d in D_CENTERS}: 
+DCTimeConstraint{d in D_CENTERS}:
 			sum{p in PRODUCTS, k in CUSTOMAREAS} DelProd_DC[d,p,k]*AssemblyTime[d,p] <= DC_Capacity[d];
 
 OnlyDeliverFromOpenDC{d in D_CENTERS}:
 			sum{p in PRODUCTS, k in CUSTOMAREAS} DelProd_DC[d,p,k] <= open_DC[d]*1000000;
-
-
-

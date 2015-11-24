@@ -30,14 +30,14 @@ param ExcessLimit{EXCESSLEVEL};				# Excess sales intervals
 param AssemblyCost{D_CENTERS, PRODUCTS, 1..T};		# Assembly costs at DCs
 param CompCost{FACTORIES, COMPONENTS, 1..T};		# Component prices
 param Revenue{CUSTOMAREAS, PRODUCTS, 1..T};		# Selling reward
- 
+
 param Supply{FACTORIES, COMPONENTS, 1..T};		# Supply at Factories
 param Demand{CUSTOMAREAS, PRODUCTS, 1..T}; 		# Demand at Customer areas
 
-param AssemblyTime{D_CENTERS, PRODUCTS, 1..T};		# Time needed to assemble one 
+param AssemblyTime{D_CENTERS, PRODUCTS, 1..T};		# Time needed to assemble one
 							# product at DCs
 
-param DC_CapCost{D_CENTERS,CAPACITY};			# Capacity costs and capacities 
+param DC_CapCost{D_CENTERS,CAPACITY};			# Capacity costs and capacities
 param DC_Capacity{D_CENTERS,CAPACITY};			# for Distribution centers
 
 param HoldCost_Comp;					# Inventory holding costs Components
@@ -63,13 +63,13 @@ param CoordCustomer_y{CUSTOMAREAS};
 # Euclidian distances between Factories, DCs and Customers are calculated
 #-----------------------------------------------------------------------------------------------
 
-param distFC{i in FACTORIES, j in CUSTOMAREAS} := 
+param distFC{i in FACTORIES, j in CUSTOMAREAS} :=
 sqrt( (CoordFactory_x[i]-CoordCustomer_x[j])^2 + (CoordFactory_y[i]-CoordCustomer_y[j])^2 );
 
-param distFD{i in FACTORIES, j in D_CENTERS} := 
+param distFD{i in FACTORIES, j in D_CENTERS} :=
 sqrt( (CoordFactory_x[i]-CoordDCenter_x[j])^2  + (CoordFactory_y[i]-CoordDCenter_y[j])^2 );
 
-param distDC{i in D_CENTERS, j in CUSTOMAREAS} := 
+param distDC{i in D_CENTERS, j in CUSTOMAREAS} :=
 sqrt( (CoordDCenter_x[i]-CoordCustomer_x[j])^2 + (CoordDCenter_y[i]-CoordCustomer_y[j])^2 );
 
 
@@ -79,7 +79,6 @@ sqrt( (CoordDCenter_x[i]-CoordCustomer_x[j])^2 + (CoordDCenter_y[i]-CoordCustome
 # Your variables goes here ...
 #-----------------------------------------------------------------------------------------------
 
-# var x
 var SubComp{FACTORIES, COMPONENTS, 1..T} integer >= 0;
 var DelProd_DC{USED_DC, PRODUCTS, CUSTOMAREAS, 1..T} integer >= 0;
 var Produced{PRODUCTS, USED_DC, 1..T} integer >= 0;
@@ -89,14 +88,12 @@ var DC_STORAGE_P{PRODUCTS, USED_DC, 0..T} integer >= 0;
 var DC_STORAGE_C{COMPONENTS, USED_DC, 0..T} integer >= 0;
 var CAPACITY_UTILIZED{USED_DC, 1..T, CAPACITY} binary;
 
-
-
 #-----------------------------------------------------------------------------------------------
 # Objective function
 #-----------------------------------------------------------------------------------------------
 
 # maximize TotalProfit
-maximize z: sum{k in CUSTOMAREAS, p in PRODUCTS, t in 1..T}  Revenue[k,p,t]*(Demand[k,p,t]  	# Min efterfråga 
+maximize z: sum{k in CUSTOMAREAS, p in PRODUCTS, t in 1..T}  Revenue[k,p,t]*(Demand[k,p,t]  	# Min efterfråga
 			+ sum{e in EXCESSLEVEL} RevScale[e]*ExcessDemand[k,p,e,t])				# Excess som vi skickar vart vi vill
 			- sum{f in FACTORIES, c in COMPONENTS, t in 1..T} CompCost[f,c,t]*SubComp[f,c,t]		# Kostnad för utlego
 			- sum{p in PRODUCTS, d in USED_DC, t in 1..T} AssemblyCost[d,p,t]*Produced[p,d,t]
@@ -111,18 +108,18 @@ maximize z: sum{k in CUSTOMAREAS, p in PRODUCTS, t in 1..T}  Revenue[k,p,t]*(Dem
 # Constraints
 #-----------------------------------------------------------------------------------------------
 
-subject to 
+subject to
 
-conSupply{f in FACTORIES, c in COMPONENTS, t in 1..T}: 
+conSupply{f in FACTORIES, c in COMPONENTS, t in 1..T}:
 			sum{d in USED_DC} DelComp[f,d,c,t] <= Supply[f,c,t] + SubComp[f,c,t];
 
 FulfillDemand{k in CUSTOMAREAS, p in PRODUCTS, t in 1..T}:
 			sum{d in USED_DC} DelProd_DC[d,p,k,t] = Demand[k,p,t] + (sum{e in EXCESSLEVEL} ExcessDemand[k,p,e,t]);
 
-ExcessConstraint{k in CUSTOMAREAS, e in EXCESSLEVEL, p in PRODUCTS, t in 1..T}: 
+ExcessConstraint{k in CUSTOMAREAS, e in EXCESSLEVEL, p in PRODUCTS, t in 1..T}:
 			ExcessDemand[k,p,e,t] <= ExcessLimit[e]*Demand[k,p,t];
 
-DCTimeConstraint{d in USED_DC, t in 1..T}: 
+DCTimeConstraint{d in USED_DC, t in 1..T}:
 			sum{p in PRODUCTS} Produced[p,d,t]*AssemblyTime[d,p,t] <= sum{l in CAPACITY} DC_Capacity[d,l]*CAPACITY_UTILIZED[d,t,l];
 
 ComponentStorageConstraint{d in USED_DC, c in COMPONENTS, t in 1..T}:
