@@ -1,4 +1,5 @@
 
+
 function f = func(sortedList, problem)
     depot = 1;
     routeMatrices{1,1}(1,1) = 48;
@@ -13,7 +14,7 @@ function f = func(sortedList, problem)
         
 
         for improve = 1:size(sortedList{depot},1)
-            currentRoute = routeMatrices{depot,route}
+            %currentRoute = routeMatrices{depot,route}
             new = [sortedList{depot}(improve, 1), sortedList{depot}(improve, 2)];
             
             temp = zeros(2,2);
@@ -35,11 +36,11 @@ function f = func(sortedList, problem)
                     %If exists in middle or route, no connection can be
                     %made so skip
                     else
-                        disp('In the middle so duck')
+                        %disp('In the middle so duck')
                         continue;
                     end
-                    disp('------------Yes--Node1')
-                    new
+                   % disp('------------Yes--Node1')
+                    %new
                     temp(1,1) = r;
                 end
                 if node2
@@ -50,35 +51,41 @@ function f = func(sortedList, problem)
                     else
                         continue;
                     end
-                    disp('------------Yes--Node2')
-                    new
+                    %disp('------------Yes--Node2')
+                    %new
                     temp(2,1) = r;
                 else
-                    disp('No')
+                   % disp('No')
                 end
                 
                 % Check temp was her but moved
                 
             end
-            
+            disp('-----------------------------------------')
+            new
             temp
+            
             if temp(1,1) == temp(2,1) && temp(1,1)~=0
                 disp('both exists in same route so duck off')
+                continue;
             elseif temp(1,1) == 0 && temp(1,2) == 0
-                disp('create new separate route')
+                %disp('create new separate route')
                 route = route + 1;
-                routeMatrices{depot,route}(1,1) = problem.Capacity;
+                %routeMatrices{depot,route}(1,1) = problem.Capacity;
                 routeMatrices{depot,route}(1,2) = new(1,1);
                 routeMatrices{depot,route}(1,3) = new(1,2);
-                routeMatrices{depot,route}
+                routeMatrices{depot,route};
             else 
-                disp('send to concat routes function')
-                ost = concatRoutes(new, temp, routeMatrices, depot);
+                %disp('send to concat routes function')
+                routeMatrices = concatRoutes(new, temp, routeMatrices, depot);
             end
+            routeMatrices
             
             
         end
-
+    
+    routeMatrices
+    sortedList{1,1}
     f = 1;
     
 end
