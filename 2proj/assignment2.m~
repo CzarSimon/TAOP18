@@ -1,0 +1,40 @@
+% Dijkstras algoritm will be used as a constructive heuris
+
+% plotDepotAssignment(problem, depoAssignment,
+assignment1;
+
+% Assigning customers to the nearest depot
+depotCust = depotCustFunction(depoAssignment, Distances)
+
+totalCost = 0;
+CostC2C = problem.MileageCost.*problem.Dist.c2c;
+CostD2C = problem.MileageCost.*problem.Dist.d2c;
+
+%List sorted by clark wright arcs and their savings in decending order with
+%highest savings first.
+sortedList = sortedListFunction(depotCust, CostC2C, CostD2C)
+
+
+% for depot = 1:problem.nrDepots
+%     truck = 1;
+%     %routeMatrices{depot,truck} = zeros(find(depotCust(i,:) ~= 0, 1, 'last') + 1, 1);
+%     routeMatrices{depot,truck}(1,1) = problem.Capacity;
+%     
+%     for improve = 1:size(arrOfCostMatrices2{depot},2)
+%         new = [arrOfCostMatrices2{depot}(improve, 1), arrOfCostMatrices2{depot}(improve, 2)];
+%         index = find(routeMatrices{depot,truck}(1,2) == new(1,1)) 
+%     end
+%     
+% end
+% 
+% routeMatrices
+% 
+% arrOfCostMatrices2{1};
+% 
+% routeMatrices{1,1}
+% 
+% 
+% 
+% 
+% 
+
