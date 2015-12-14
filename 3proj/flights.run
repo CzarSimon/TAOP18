@@ -12,8 +12,8 @@ option omit_zero_cols 1;     # Writes no zeros in the columns
 option omit_zero_rows 1;     # Writes no zeros in the rows 
 option display_1col 10000;   # Write out only one column
 
-model flights.mod;
-data  flights.dat;
+model TAOP18/3proj/flights.mod;
+data  TAOP18/3proj/flights.dat;
 
 problem Set_Covering;
   option relax_integrality 1;			# Relax intergrality property
@@ -28,6 +28,19 @@ param redCost;
 
 # Create Starting columns. 
 # One column for each flight with a high cost on the column
+
+let nCol := nFlights;
+
+for {i in 1..nFlights} {
+  for {j in 1..nCol}{
+    if i==j then{
+        let a[i,j] := 1;
+        let colCost[j] := 1000000;
+    } else {
+        let a[i,j] := 0;
+    };
+  }
+}
 
 
 #----------------------------------------------------------------------
@@ -46,12 +59,14 @@ repeat {
 
    # Eval. reduced cost
 
-  if redCost < -0.00001 then 
+  if redCost < -0.00001 then {
      # Increase the number of columns
      # Eval new column in the a-matrix. 
      # Eval the column cost
    }
-   else break;
+   else {
+      break;
+    }
 
    # Write master objective function value
 };
@@ -62,6 +77,7 @@ repeat {
 option Set_Covering.relax_integrality 0; 	# Solve with integer values
 option Set_Covering.presolve 10;
 solve Set_Covering > flights.res;
+display _varname, _var > TAOP18/3proj/flights.res;
 
 # Display solution;
 

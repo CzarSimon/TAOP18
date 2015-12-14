@@ -22,10 +22,15 @@ param colCost{COLUMNS};
 var routeUsed{COLUMNS} binary;
 
 
-minimize z: sum{j in COLUMNS} colCost[j]*routeUsed[j]
+#-------MP objective function-----#
+minimize z: sum{j in COLUMNS} colCost[j]*routeUsed[j];
+
+#------MP Constraints-----------#
 
 subject to
 
+columnconstraint{i in FLIGHTS}:
+			sum{j in COLUMNS} a[i,j]*routeUsed[j] >= 1;
 
 #----------------------------------------------------------------------
 # Defines the Shortest Path sub-problem
