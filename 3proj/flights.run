@@ -5,18 +5,19 @@
 #----------------------------------------------------------------------
 # COLUMN GENERATION PROBLEM FOR A CREW PAIRING PROBLEM
 #----------------------------------------------------------------------
-
-option solver cplex;         # Use for downloaded version of AMPL
+reset;
+option solver './cplex';         # Use for downloaded version of AMPL
 #option solver cplexamp;     # Use in MAIs computer rooms
 option omit_zero_cols 1;     # Writes no zeros in the columns
 option omit_zero_rows 1;     # Writes no zeros in the rows 
 option display_1col 10000;   # Write out only one column
 
 model TAOP18/3proj/flights.mod;
-data  TAOP18/3proj/flights.dat;
+#data  TAOP18/3proj/flights.dat;
+data  TAOP18/3proj/flightsLARGE.dat;
 
 problem Set_Covering;
-  option relax_integrality 1;			# Relax intergrality property
+  option relax_integrality 1;     # Relax intergrality property
   option presolve 0;           
 
 problem ToD_Gen;
@@ -24,10 +25,12 @@ problem ToD_Gen;
 let nCol := 0;
 param price{FLIGHTS};
 param redCost;
-
+var costCount;
 
 # Create Starting columns. 
 # One column for each flight with a high cost on the column
+
+let NODESwithoutSTARTorEND := NODES diff STARTEND; 
 
 let nCol := nFlights;
 
@@ -35,13 +38,12 @@ for {i in 1..nFlights} {
   for {j in 1..nCol}{
     if i==j then{
         let a[i,j] := 1;
-        let colCost[j] := 1000000;
+        let colCost[j] := 100000;
     } else {
         let a[i,j] := 0;
     };
   }
 }
-
 
 #----------------------------------------------------------------------
 # Main Column Generation loop
@@ -50,19 +52,50 @@ repeat {
    solve Set_Covering;
 
    # Eval. dualvariables (price). 
+   let {f in FLIGHTS} price[f] := columnConstraint[f].dual;
+
+   #display price;
+
 
    # Eval. arcCost from original arccost
+   for {(i,j) in ARCS}{
+      let arcCost[i,j] := orgArcCost[i,j] - sum{p in FLIGHTS_IN_NODE[i]} price[p];
+   }
 
    solve ToD_Gen;
-   
+
+   let redCost := w;
    # Write tour solution
 
    # Eval. reduced cost
-
+   let costCount := 0;
+  
   if redCost < -0.00001 then {
+
      # Increase the number of columns
-     # Eval new column in the a-matrix. 
+     let nCol := nCol + 1; 
+
+     # Eval new column in the a-matrix.
+    for{i in FLIGHTS}{
+      let a[i,nCol] := 0; 
+    }
+
+    for{(i,j) in ARCS}{
+      if nodeInRoute[i,j] == 1 then{
+        for{f in FLIGHTS_IN_NODE[i]}{
+          let a[f,nCol] := 1;
+        } 
+      }
+    }
+
+    for{(i,j) in ARCS}{
+      if nodeInRoute[i,j] == 1 then {
+        let costCount := costCount + orgArcCost[i,j];
+      }
+    }
+
      # Eval the column cost
+     let colCost[nCol] := costCount;
   }
   else {
       break;
@@ -74,10 +107,9 @@ repeat {
 # Write master solution (maybe not integer)
 
 # Solve integer problem
-option Set_Covering.relax_integrality 0; 	# Solve with integer values
+option Set_Covering.relax_integrality 0;  # Solve with integer values
 option Set_Covering.presolve 10;
 solve Set_Covering > flights.res;
-display _varname, _var > TAOP18/3proj/flights.res;
 
-# Display solution;
 
+#Display solution;
