@@ -1,0 +1,67 @@
+#----------------------------------------------------------------------
+# Run file: flights.run
+#----------------------------------------------------------------------
+
+#----------------------------------------------------------------------
+# COLUMN GENERATION PROBLEM FOR A CREW PAIRING PROBLEM
+#----------------------------------------------------------------------
+
+option solver cplex;         # Use for downloaded version of AMPL
+#option solver cplexamp;     # Use in MAIs computer rooms
+option omit_zero_cols 1;     # Writes no zeros in the columns
+option omit_zero_rows 1;     # Writes no zeros in the rows 
+option display_1col 10000;   # Write out only one column
+
+model flights.mod;
+data  flights.dat;
+
+problem Set_Covering;
+  option relax_integrality 1;			# Relax intergrality property
+  option presolve 0;           
+
+problem ToD_Gen;
+
+let nCol := 0;
+param price{FLIGHTS};
+param redCost;
+
+
+# Create Starting columns. 
+# One column for each flight with a high cost on the column
+
+
+#----------------------------------------------------------------------
+# Main Column Generation loop
+#----------------------------------------------------------------------
+repeat {
+   solve Set_Covering;
+
+   # Eval. dualvariables (price). 
+
+   # Eval. arcCost from original arccost
+
+   solve ToD_Gen;
+   
+   # Write tour solution
+
+   # Eval. reduced cost
+
+  if redCost < -0.00001 then 
+     # Increase the number of columns
+     # Eval new column in the a-matrix. 
+     # Eval the column cost
+   }
+   else break;
+
+   # Write master objective function value
+};
+
+# Write master solution (maybe not integer)
+
+# Solve integer problem
+option Set_Covering.relax_integrality 0; 	# Solve with integer values
+option Set_Covering.presolve 10;
+solve Set_Covering > flights.res;
+
+# Display solution;
+
