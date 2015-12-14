@@ -19,6 +19,12 @@ param colCost{COLUMNS};
 
 # Include variables, objective function and constraints
 
+var routeUsed{COLUMNS} binary;
+
+
+minimize z: sum{j in COLUMNS} colCost[j]*routeUsed[j]
+
+subject to
 
 
 #----------------------------------------------------------------------
@@ -37,5 +43,3 @@ param orgArcCost{ARCS};
 # Include variables, objective function and constraints
 # The sets FLIGHTS_IN_NODE are not needed here,
 # only used in the command file (flight.run).
-
-
