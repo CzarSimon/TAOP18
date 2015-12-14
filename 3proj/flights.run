@@ -63,10 +63,10 @@ repeat {
      # Increase the number of columns
      # Eval new column in the a-matrix. 
      # Eval the column cost
-   }
-   else {
+  }
+  else {
       break;
-    }
+  }
 
    # Write master objective function value
 };

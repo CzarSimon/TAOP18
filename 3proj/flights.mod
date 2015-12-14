@@ -32,6 +32,7 @@ subject to
 columnconstraint{i in FLIGHTS}:
 			sum{j in COLUMNS} a[i,j]*routeUsed[j] >= 1;
 
+
 #----------------------------------------------------------------------
 # Defines the Shortest Path sub-problem
 #----------------------------------------------------------------------
@@ -43,6 +44,7 @@ set ARCS within NODES cross NODES;
 set FLIGHTS_IN_NODE{NODES};
 param arcCost{ARCS};
 param orgArcCost{ARCS};
+
 
 
 # Include variables, objective function and constraints
