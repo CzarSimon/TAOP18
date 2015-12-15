@@ -13,8 +13,8 @@ option omit_zero_rows 1;     # Writes no zeros in the rows
 option display_1col 10000;   # Write out only one column
 
 model TAOP18/3proj/flights.mod;
-#data  TAOP18/3proj/flights.dat;
-data  TAOP18/3proj/flightsLARGE.dat;
+data  TAOP18/3proj/flights.dat;
+#data  TAOP18/3proj/flightsLARGE.dat;
 
 problem Set_Covering;
   option relax_integrality 1;     # Relax intergrality property
@@ -30,7 +30,8 @@ var costCount;
 # Create Starting columns. 
 # One column for each flight with a high cost on the column
 
-let NODESwithoutSTARTorEND := NODES diff STARTEND; 
+let NODESwithoutSTARTorEND := NODES diff {'START', 'END'}; 
+display NODESwithoutSTARTorEND;
 
 let nCol := nFlights;
 
@@ -109,7 +110,9 @@ repeat {
 # Solve integer problem
 option Set_Covering.relax_integrality 0;  # Solve with integer values
 option Set_Covering.presolve 10;
-solve Set_Covering > flights.res;
+solve Set_Covering > TAOP18/3proj/flights.res;
+display _objname, _obj > TAOP18/3proj/flights.res;
+display _varname, _var > TAOP18/3proj/flightsvars.res;
 
 
 #Display solution;

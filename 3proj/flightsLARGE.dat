@@ -3,7 +3,6 @@
 #----------------------------------------------------------------------
 
 param nFlights := 201;
-set STARTEND := START END;
 set NODES := 
 START
 1
