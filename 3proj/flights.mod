@@ -23,7 +23,7 @@ var routeUsed{COLUMNS} >= 0, binary;
 
 
 #-------MP objective function-----#
-minimize z: sum{j in COLUMNS} colCost[j]*routeUsed[j];
+minimize totalToDcost: sum{j in COLUMNS} colCost[j]*routeUsed[j];
 
 #------MP Constraints-----------#
 
@@ -47,20 +47,20 @@ set FLIGHTS_IN_NODE{NODES};
 param arcCost{ARCS};
 param orgArcCost{ARCS};
 
-var nodeInRoute{ARCS} >= 0, binary;
+var nodesInRoute{ARCS} >= 0, binary;
 
 #-------Objective Function---------#
 
-			minimize w: sum{(i,j) in ARCS} arcCost[i,j]*nodeInRoute[i,j];
+			minimize ToDcost: sum{(i,j) in ARCS} arcCost[i,j]*nodesInRoute[i,j];
 
 subject to
 			
 nodeBalanceConstraint{j in NODESwithoutSTARTorEND}:
-			sum{(i,j) in ARCS} nodeInRoute[i,j] - sum{(j,k) in ARCS} nodeInRoute[j,k] = 0;
+			sum{(i,j) in ARCS} nodesInRoute[i,j] - sum{(j,k) in ARCS} nodesInRoute[j,k] = 0;
 StartMustBeIncluded:
-			sum{('START',j) in ARCS} nodeInRoute['START',j] = 1;
+			sum{('START',j) in ARCS} nodesInRoute['START',j] = 1;
 EndMustBeIncluded:
-			sum{(i,'END') in ARCS} nodeInRoute[i,'END'] = 1;
+			sum{(i,'END') in ARCS} nodesInRoute[i,'END'] = 1;
 
 
 # Include variables, objective function and constraints

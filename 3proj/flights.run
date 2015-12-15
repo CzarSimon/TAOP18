@@ -13,8 +13,8 @@ option omit_zero_rows 1;     # Writes no zeros in the rows
 option display_1col 10000;   # Write out only one column
 
 model TAOP18/3proj/flights.mod;
-data  TAOP18/3proj/flights.dat;
-#data  TAOP18/3proj/flightsLARGE.dat;
+#data  TAOP18/3proj/flights.dat;
+data  TAOP18/3proj/flightsLARGE.dat;
 
 problem Set_Covering;
   option relax_integrality 1;     # Relax intergrality property
@@ -24,7 +24,9 @@ problem ToD_Gen;
 
 let nCol := 0;
 param price{FLIGHTS};
+param finalRoute{COLUMNS};
 param redCost;
+param nodesInColumn {ARCS, COLUMNS} >=0;
 var costCount;
 
 # Create Starting columns. 
@@ -65,7 +67,7 @@ repeat {
 
    solve ToD_Gen;
 
-   let redCost := w;
+   let redCost := ToDcost;
    # Write tour solution
 
    # Eval. reduced cost
@@ -82,7 +84,12 @@ repeat {
     }
 
     for{(i,j) in ARCS}{
-      if nodeInRoute[i,j] == 1 then{
+        let nodesInColumn[i,j, nCol] := 0;
+    }
+
+    for{(i,j) in ARCS}{
+      if nodesInRoute[i,j] == 1 then{
+        let nodesInColumn[i,j, nCol] := 1;
         for{f in FLIGHTS_IN_NODE[i]}{
           let a[f,nCol] := 1;
         } 
@@ -90,7 +97,7 @@ repeat {
     }
 
     for{(i,j) in ARCS}{
-      if nodeInRoute[i,j] == 1 then {
+      if nodesInRoute[i,j] == 1 then {
         let costCount := costCount + orgArcCost[i,j];
       }
     }
@@ -105,14 +112,75 @@ repeat {
    # Write master objective function value
 };
 
+for{ (i,j) in ARCS }{
+  let nodesInRoute[i,j] := 0;
+}
+
 # Write master solution (maybe not integer)
 
 # Solve integer problem
 option Set_Covering.relax_integrality 0;  # Solve with integer values
 option Set_Covering.presolve 10;
 solve Set_Covering > TAOP18/3proj/flights.res;
-display _objname, _obj > TAOP18/3proj/flights.res;
-display _varname, _var > TAOP18/3proj/flightsvars.res;
 
+display _objname, _obj > TAOP18/3proj/flights.res;
+
+display {j in 1.._nvars: _var[j] > 0}   # Display only non-zero variables
+(_varname[j], _var[j]) > TAOP18/3proj/flights.res;
+
+print "     Number of ToDs used = " & sum{c in COLUMNS} routeUsed[c] > TAOP18/3proj/flights.res;
+print "Number of ToDs generated = " & nCol - nFlights > TAOP18/3proj/flights.res;
+
+var NoOfDP := 0;
+var totNoOfDP := 0;
+
+for{ route in COLUMNS }{
+  if routeUsed[route] == 1 then {
+    let totNoOfDP := totNoOfDP -1;
+    let finalRoute[route] := 1;
+    let NoOfDP := -1;
+    print "ROUTE NUMBER        : " & route > TAOP18/3proj/flights.res;
+    print ""  > TAOP18/3proj/flights.res;
+    print "ARCS IN ROUTE"  > TAOP18/3proj/flights.res;
+    for {(i,j) in ARCS}{
+      if nodesInColumn[i,j,route] == 1 then {
+        let NoOfDP := NoOfDP + 1;
+        let totNoOfDP := totNoOfDP + 1;
+        print i & "  to   " &  j > TAOP18/3proj/flights.res;
+      }
+    }
+
+    print ""  > TAOP18/3proj/flights.res;
+    print "ROUTE COST          : " & colCost[route] > TAOP18/3proj/flights.res;
+    print "No. of Duty Periods : " & NoOfDP > TAOP18/3proj/flights.res;
+    print "Number of Flights in route: " & sum{f in FLIGHTS} a[f,route] >TAOP18/3proj/flights.res;
+    print ""  > TAOP18/3proj/flights.res;
+    print "------------------------------------------------------"  > TAOP18/3proj/flights.res;
+  } else {
+    let finalRoute[route] := 0;
+  }
+}
+
+
+var NoOfPaxing := 0;
+param flightsPaxed{FLIGHTS};
+
+# The number of pacing used is calculated
+for{ f in FLIGHTS }{
+  if sum{ c in COLUMNS } finalRoute[c]*a[f, c] > 1 then{
+    let NoOfPaxing:= NoOfPaxing + 1;
+    let flightsPaxed[f] := 1;
+  }
+}
+
+
+
+print "Total No. of duty periods: " & totNoOfDP > TAOP18/3proj/flights.res;
+print "Total number of Flights: " & sum{c in COLUMNS, f in FLIGHTS} finalRoute[c]*a[f,c] > TAOP18/3proj/flights.res;
+
+print "Number of paxing used:  " & NoOfPaxing > TAOP18/3proj/flights.res;
+print ""  > TAOP18/3proj/flights.res;
+print "Flightnumbers that are paxed:" > TAOP18/3proj/flights.res;
+display flightsPaxed  > TAOP18/3proj/flights.res;
 
 #Display solution;
